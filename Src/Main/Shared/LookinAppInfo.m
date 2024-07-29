@@ -12,6 +12,7 @@
 
 #import "LookinAppInfo.h"
 #if TARGET_OS_IPHONE
+#import "LKS_MultiplatformAdapter.h"
 #import "LKS_ConnectionManager.h"
 #endif
 
@@ -164,7 +165,7 @@ static NSString * const CodingKey_DeviceType = @"8";
     info.appBundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
     if ([self isSimulator]) {
         info.deviceType = LookinAppInfoDeviceSimulator;
-    } else if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+    } else if ([LKS_MultiplatformAdapter isiPad]) {
         info.deviceType = LookinAppInfoDeviceIPad;
     } else {
         info.deviceType = LookinAppInfoDeviceOthers;
@@ -175,10 +176,10 @@ static NSString * const CodingKey_DeviceType = @"8";
     NSString *mainVersionStr = [[[UIDevice currentDevice] systemVersion] componentsSeparatedByString:@"."].firstObject;
     info.osMainVersion = [mainVersionStr integerValue];
     
-    CGSize screenSize = [UIScreen mainScreen].bounds.size;
+    CGSize screenSize = [LKS_MultiplatformAdapter mainScreenBounds].size;
     info.screenWidth = screenSize.width;
     info.screenHeight = screenSize.height;
-    info.screenScale = [UIScreen mainScreen].scale;
+    info.screenScale = [LKS_MultiplatformAdapter mainScreenScale];
 
     if (hasScreenshot) {
         info.screenshot = [self screenshotImage];
@@ -207,7 +208,16 @@ static NSString * const CodingKey_DeviceType = @"8";
 #if TARGET_OS_TV
     return nil;
 #else
-    NSString *imageName = [[[[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIcons"] objectForKey:@"CFBundlePrimaryIcon"] objectForKey:@"CFBundleIconFiles"] lastObject];
+    NSString *imageName;
+    id CFBundleIcons = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleIcons"];
+    if ([CFBundleIcons respondsToSelector:@selector(objectForKey:)]) {
+        id CFBundlePrimaryIcon = [CFBundleIcons objectForKey:@"CFBundlePrimaryIcon"];
+        if ([CFBundlePrimaryIcon respondsToSelector:@selector(objectForKey:)]) {
+            imageName = [[CFBundlePrimaryIcon objectForKey:@"CFBundleIconFiles"] lastObject];
+        } else if ([CFBundlePrimaryIcon isKindOfClass:NSString.class]) {
+            imageName = CFBundlePrimaryIcon;
+        }
+    }
     if (!imageName.length) {
         // 正常情况下拿到的 name 可能比如 “AppIcon60x60”。但某些情况可能为 nil，此时直接 return 否则 [UIImage imageNamed:nil] 可能导致 console 报 "CUICatalog: Invalid asset name supplied: '(null)'" 的错误信息
         return nil;
@@ -217,7 +227,7 @@ static NSString * const CodingKey_DeviceType = @"8";
 }
 
 + (UIImage *)screenshotImage {
-    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    UIWindow *window = [LKS_MultiplatformAdapter keyWindow];
     if (!window) {
         return nil;
     }
