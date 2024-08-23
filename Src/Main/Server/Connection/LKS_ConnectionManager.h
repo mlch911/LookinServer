@@ -32,9 +32,9 @@ extern NSString *const LKS_ConnectionDidEndNotificationName;
 - (BOOL)isWirelessConnnect;
 #endif
 
-- (void)respond:(LookinConnectionResponseAttachment *)data requestType:(uint32_t)requestType tag:(uint32_t)tag;
+- (void)respond:(LookinConnectionResponseAttachment *)data requestType:(uint32_t)requestType tag:(uint32_t)tag isWireless:(BOOL)isWireless;
 
-- (void)pushData:(NSObject *)data type:(uint32_t)type;
+- (void)pushData:(NSObject *)data type:(uint32_t)type isWireless:(BOOL)isWireless;
 
 @end
 

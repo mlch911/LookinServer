@@ -107,7 +107,11 @@ static NSString *_macUUIDString = nil;
 #if TARGET_IPHONE_SIMULATOR
     self.deviceType = ECODeviceType_Simulator;
 #else
-    self.deviceType = ECODeviceType_Device;
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+		self.deviceType = ECODeviceType_iPad_Device;
+	} else {
+		self.deviceType = ECODeviceType_Device;
+	}
 #endif
     //uuid
     //        self.uuid = [[NSUUID UUID] UUIDString];

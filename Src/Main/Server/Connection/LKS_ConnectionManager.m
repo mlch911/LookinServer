@@ -29,6 +29,7 @@ NSString *const LKS_ConnectionDidEndNotificationName = @"LKS_ConnectionDidEndNot
 @property(nonatomic, weak) Lookin_PTChannel *peerChannel_;
 
 @property(nonatomic, strong) LKS_RequestHandler *requestHandler;
+@property(nonatomic, strong) LKS_RequestHandler *wirelessRequestHandler;
 
 @property(nonatomic, strong) ECOChannelManager *wirelessChannel;
 @property(nonatomic, strong) ECOChannelDeviceInfo *wirelessDevice;
@@ -78,6 +79,7 @@ NSString *const LKS_ConnectionDidEndNotificationName = @"LKS_ConnectionDidEndNot
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleGetLookinInfo:) name:@"GetLookinInfo" object:nil];
         
         self.requestHandler = [LKS_RequestHandler new];
+        self.wirelessRequestHandler = LKS_RequestHandler.wireless;
     }
     return self;
 }
@@ -103,7 +105,7 @@ NSString *const LKS_ConnectionDidEndNotificationName = @"LKS_ConnectionDidEndNot
 				object = unarchivedObject;
 			}
 			dispatch_async(dispatch_get_main_queue(), ^{
-				[weakSelf.requestHandler handleRequestType:type.intValue tag:tag.intValue object:object];
+				[weakSelf.wirelessRequestHandler handleRequestType:type.intValue tag:tag.intValue object:object];
 			});
 		};
 		// 设备连接变更
@@ -264,26 +266,30 @@ NSString *const LKS_ConnectionDidEndNotificationName = @"LKS_ConnectionDidEndNot
 }
 #endif
 
-- (void)respond:(LookinConnectionResponseAttachment *)data requestType:(uint32_t)requestType tag:(uint32_t)tag {
-    [self _sendData:data frameOfType:requestType tag:tag];
+- (void)respond:(LookinConnectionResponseAttachment *)data requestType:(uint32_t)requestType tag:(uint32_t)tag isWireless:(BOOL)isWireless {
+    [self _sendData:data frameOfType:requestType tag:tag isWireless:isWireless];
 }
 
-- (void)pushData:(NSObject *)data type:(uint32_t)type {
-    [self _sendData:data frameOfType:type tag:0];
+- (void)pushData:(NSObject *)data type:(uint32_t)type isWireless:(BOOL)isWireless {
+    [self _sendData:data frameOfType:type tag:0 isWireless:isWireless];
 }
 
-- (void)_sendData:(NSObject *)data frameOfType:(uint32_t)frameOfType tag:(uint32_t)tag {
+- (void)_sendData:(NSObject *)data frameOfType:(uint32_t)frameOfType tag:(uint32_t)tag isWireless:(BOOL)isWireless {
 	NSData *archivedData = [NSKeyedArchiver archivedDataWithRootObject:data];
-    if (self.peerChannel_) {
-        dispatch_data_t payload = [archivedData createReferencingDispatchData];
-        
-        [self.peerChannel_ sendFrameOfType:frameOfType tag:tag withPayload:payload callback:^(NSError *error) {
-            if (error) {
-            }
-        }];
-	} else if (self.wirelessDevice.isConnected) {
-		[self.wirelessChannel sendPacket:archivedData extraInfo:@{@"tag": @(tag), @"type": @(frameOfType)} toDevice:self.wirelessDevice];
-	}
+    if (isWireless) {
+        if (self.wirelessDevice.isConnected) {
+            [self.wirelessChannel sendPacket:archivedData extraInfo:@{@"tag": @(tag), @"type": @(frameOfType)} toDevice:self.wirelessDevice];
+        }
+    } else {
+        if (self.peerChannel_) {
+            dispatch_data_t payload = [archivedData createReferencingDispatchData];
+            
+            [self.peerChannel_ sendFrameOfType:frameOfType tag:tag withPayload:payload callback:^(NSError *error) {
+                if (error) {
+                }
+            }];
+        }
+    }
 }
 
 #pragma mark - Lookin_PTChannelDelegate

@@ -12,6 +12,7 @@
 typedef NS_ENUM(NSInteger, ECODeviceType) {
     ECODeviceType_Simulator = 0,     //模拟器
     ECODeviceType_Device,            //真机
+	ECODeviceType_iPad_Device,       //iPad真机
     ECODeviceType_MacApp,            //Mac客户端
 };
 
