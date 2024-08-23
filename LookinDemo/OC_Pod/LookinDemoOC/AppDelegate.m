@@ -16,7 +16,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-#if !SIMULATOR
+#if !TARGET_OS_SIMULATOR
     [NSNotificationCenter.defaultCenter postNotificationName:@"Lookin_startWirelessConnection" object:nil];
 #endif
     return YES;

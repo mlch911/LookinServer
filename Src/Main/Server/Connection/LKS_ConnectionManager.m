@@ -86,6 +86,10 @@ NSString *const LKS_ConnectionDidEndNotificationName = @"LKS_ConnectionDidEndNot
 
 #if LOOKIN_SERVER_WIRELESS
 - (void)startWirelessConnection {
+#if TARGET_OS_SIMULATOR
+    NSLog(@"LookinServer - warning: you should not start Wireless Connection on Simulator. We wouldn't start it.");
+    return;
+#endif
 	self.hasStartWirelessConnnection = YES;
 	if (!self.wirelessChannel) {
 #if TARGET_OS_IPHONE
