@@ -7,7 +7,7 @@
 //
 
 #import "ECOSocketChannel.h"
-#import <CocoaAsyncSocket/GCDAsyncSocket.h>
+//#import <CocoaAsyncSocket/GCDAsyncSocket.h>
 #import <pthread.h>
 #include <string.h>
 
@@ -15,6 +15,8 @@
 #import "ECONetServiceBrowser.h"
 
 #import "LookinDefines.h"
+
+@import CocoaAsyncSocket;
 
 //static uint16_t const  ECOClientSockeListenPortNumber = 23235;
 //static uint16_t const  ECOSocketAcceptPortNumber = 23234;

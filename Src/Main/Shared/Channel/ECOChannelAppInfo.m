@@ -3,10 +3,12 @@
 //  EchoSDK
 //
 //  Created by 陈爱彬 on 2019/10/30. Maintain by 陈爱彬
-//  Description 
+//  Description
 //
 
 #import "ECOChannelAppInfo.h"
+
+@import UIKit;
 
 static NSString *_ecoUniqueAppId = nil;
 static NSString *_ecoUniqueAppName = nil;

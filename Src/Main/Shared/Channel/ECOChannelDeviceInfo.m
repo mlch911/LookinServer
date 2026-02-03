@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by 陈爱彬 on 2019/4/17. Maintain by 陈爱彬
-//  Description 
+//  Description
 //
 
 #import "ECOChannelDeviceInfo.h"
@@ -11,6 +11,8 @@
 #include <arpa/inet.h>
 #include <net/if.h>
 #include <sys/utsname.h>
+
+@import UIKit;
 
 static NSInteger const ECOINET_ADDRSTRLEN = 16;
 static NSInteger const ECOINET6_ADDRSTRLEN = 46;
@@ -46,7 +48,7 @@ static NSString *_macUUIDString = nil;
             self.authorizedType = [deviceDict[@"authType"] integerValue];
             self.showAuthAlert = [deviceDict[@"showAuth"] boolValue];
             self.hostName = deviceDict[@"hostName"];
-            
+
             ECOChannelAppInfo *appInfo = [[ECOChannelAppInfo alloc] initWithDictionary:deviceDict[@"appInfo"]];
             self.appInfo = appInfo;
         }
@@ -66,7 +68,7 @@ static NSString *_macUUIDString = nil;
     deviceInfo.authorizedType = self.authorizedType;
     deviceInfo.showAuthAlert = self.showAuthAlert;
     deviceInfo.appInfo = self.appInfo;
-    
+
     return deviceInfo;
 }
 
@@ -116,7 +118,7 @@ static NSString *_macUUIDString = nil;
     //uuid
     //        self.uuid = [[NSUUID UUID] UUIDString];
     self.uuid = [[device identifierForVendor] UUIDString];
-    
+
     ECOChannelAppInfo *appInfo = [ECOChannelAppInfo new];
     self.appInfo = appInfo;
 }
@@ -125,7 +127,7 @@ static NSString *_macUUIDString = nil;
 //获取本机的ip地址表
 - (NSDictionary *)getIPAddresses {
     NSMutableDictionary *addresses = [NSMutableDictionary dictionaryWithCapacity:8];
-    
+
     // retrieve the current interfaces - returns 0 on success
     struct ifaddrs *interfaces;
     if(!getifaddrs(&interfaces)) {
@@ -175,7 +177,7 @@ static NSString *_macUUIDString = nil;
     [json setValue:@(self.showAuthAlert) forKey:@"showAuth"];
     [json setValue:self.hostName ?: @"" forKey:@"hostName"];
     [json setValue:[self.appInfo toDictionary] forKey:@"appInfo"];
-    
+
     return [json copy];
 }
 // 返回调试信息
